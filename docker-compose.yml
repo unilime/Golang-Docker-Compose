@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  go_contacts_db:
+    image: postgres:10.12
+    ports:
+      - 5454:5432
+    volumes:
+      - go_contacts_db_volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: go_contacts
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - go-contacts
+
+  go_contacts_nginx:
+    image: nginx:latest
+    working_dir: /www
+    ports:
+      - 80:80
+    links:
+      - go_contacts_app
+    volumes:
+      - .:/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - go-contacts
+
+  go_contacts_app:
+    build:
+      context: .
+      dockerfile: ./docker/go/Dockerfile
+    env_file: .env
+    ports:
+      - 8000:8000
+    depends_on:
+      - go_contacts_db
+    networks:
+      - go-contacts
+
+volumes:
+  go_contacts_db_volume: { }
+
+networks:
+  go-contacts:
