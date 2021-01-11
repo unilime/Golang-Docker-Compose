@@ -36,6 +36,7 @@ services:
       - 8000:8000
     depends_on:
       - go_contacts_db
+    restart: on-failure
     networks:
       - go-contacts
 
